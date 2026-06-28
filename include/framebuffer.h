@@ -21,7 +21,7 @@ typedef struct framebuffer_t
     int stride;
 } framebuffer_t;
 
-void framebuffer_create(framebuffer_t *const framebuffer);
+void framebuffer_create(framebuffer_t *const framebuffer, const char *file);
 void framebuffer_destroy(framebuffer_t *const framebuffer);
 
 void framebuffer_put_pixel(framebuffer_t *const framebuffer, const uint16_t x, const uint16_t y, const uint16_t color);

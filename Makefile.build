@@ -11,9 +11,11 @@ OBJECT_DIRECTORY = obj
 
 SOURCE_FILES = \
 	source/main.c \
-	source/configuration.c \
+	source/menu.c \
 	source/font.c \
-	source/framebuffer.c
+	source/framebuffer.c \
+	source/configuration.c \
+	source/input_handler.c
 
 OBJECT_FILES = $(SOURCE_FILES:source/%.c=$(OBJECT_DIRECTORY)/%.o)
 

@@ -10,11 +10,12 @@ DEVELOPMENT_MAKEFILE   := Makefile.build
 UID := $(shell id -u)
 GID := $(shell id -g)
 
+.PHONY: all setup build clean
+
 all: setup build
 
 setup:
-	@$(DOCKER) image inspect $(DEVELOPMENT_IMAGE) > /dev/null 2>&1 || \
-		$(DOCKER) -t $(DEVELOPMENT_IMAGE) -f $(DEVELOPMENT_DOCKERFILE) .
+	$(DOCKER) build -t $(DEVELOPMENT_IMAGE) -f $(DEVELOPMENT_DOCKERFILE) .
 
 build:
 	$(DOCKER) run --rm -u $(UID):$(GID) -v $(PROJECT):/work $(DEVELOPMENT_IMAGE) \
