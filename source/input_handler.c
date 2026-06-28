@@ -1,15 +1,13 @@
 #include "input_handler.h"
-
 #include <fcntl.h>
 #include <linux/input.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-void input_handler_initialize(input_handler_t *const input_handler, const char *file)
+void input_handler_initialize(input_handler_t *const input_handler, const char *device)
 {
-    input_handler->file_descriptor =
-        open(file, O_RDONLY | O_NONBLOCK);
+    input_handler->file_descriptor = open(device, O_RDONLY | O_NONBLOCK);
 
     if (input_handler->file_descriptor < 0)
     {
@@ -35,15 +33,18 @@ void input_handler_destroy(input_handler_t *const input_handler)
 int input_handler_read(input_handler_t *const input_handler)
 {
     if (input_handler->file_descriptor < 0)
-        return 0;
-
-    while (read(input_handler->file_descriptor,
-                &input_handler->event,
-                sizeof(input_handler->event))
-            == sizeof(input_handler->event))
     {
-        if (input_handler->event.type == EV_KEY &&
-            input_handler->event.value == 1)
+        return 0;
+    }
+
+    while (
+        read(
+            input_handler->file_descriptor,
+            &input_handler->event,
+            sizeof(input_handler->event
+        )) == sizeof(input_handler->event))
+    {
+        if (input_handler->event.type == EV_KEY && input_handler->event.value == 1)
         {
             return input_handler->event.code;
         }

@@ -18,8 +18,13 @@
 #include <sys/ioctl.h>
 #endif
 
-#define FRAMEBUFFER_FILE "/dev/fb0"
-#define KEYBOARD_FILE    "/dev/input/event7"
+#define DEVICE_FRAMEBUFFER "/dev/fb0"
+
+#ifdef OSCIBOOT_DEBUG_TTY
+#define DEVICE_INPUT "/dev/input/event7"
+#else
+#define DEVICE_INPUT "/dev/input/event0"
+#endif
 
 static bool validate_arguments(int arguments_count);
 static void render_background(framebuffer_t *framebuffer);
@@ -54,7 +59,7 @@ int main(int arguments_count, char *arguments[])
 #endif
 
     framebuffer_t framebuffer;
-    framebuffer_create(&framebuffer, FRAMEBUFFER_FILE);
+    framebuffer_create(&framebuffer, DEVICE_FRAMEBUFFER);
     render_background(&framebuffer);
 
     menu_t menu;
@@ -62,7 +67,7 @@ int main(int arguments_count, char *arguments[])
     menu_render(&menu, true);
 
     input_handler_t input_handler;
-    input_handler_initialize(&input_handler, KEYBOARD_FILE);
+    input_handler_initialize(&input_handler, DEVICE_INPUT);
 
     run(&framebuffer, &menu, &input_handler);
 

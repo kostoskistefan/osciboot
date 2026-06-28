@@ -8,14 +8,14 @@
 #include <stdio.h>
 #include <string.h>
 
-void framebuffer_create(framebuffer_t *const framebuffer, const char *file)
+void framebuffer_create(framebuffer_t *const framebuffer, const char *device)
 {
     if (framebuffer == NULL)
     {
         return;
     }
 
-    framebuffer->fd = open(file, O_RDWR);
+    framebuffer->fd = open(device, O_RDWR);
 
     if (framebuffer->fd < 0)
     {

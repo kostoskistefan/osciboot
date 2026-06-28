@@ -44,13 +44,13 @@ static configuration_result_t configuration_validate_section(
     configuration_entry_t *entry
 )
 {
-    if (entry->executable_path[0] == '\0')
+    if (entry->executable_path[0] != '\0')
     {
-        configuration_print_error(context, "section missing required field 'exec'");
-        return CONFIGURATION_RESULT_INVALID_SYNTAX;
+        return CONFIGURATION_RESULT_OK;
     }
 
-    return CONFIGURATION_RESULT_OK;
+    configuration_print_error(context, "section missing required field 'exec'");
+    return CONFIGURATION_RESULT_INVALID_SYNTAX;
 }
 
 static configuration_result_t configuration_parse_section(

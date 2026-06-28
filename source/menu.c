@@ -85,7 +85,7 @@ void menu_execute(menu_t *menu)
 
     if (pid == 0)
     {
-        execv(path, (char *[]) { (char *)path, NULL });
+        execv(path, (char *[]) { (char *) path, NULL });
         perror("execv");
         exit(EXIT_FAILURE);
     }
