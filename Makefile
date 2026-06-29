@@ -43,8 +43,8 @@ transfer:
 	@echo 'Transferring $(CONFIGURATION_FILE)...'
 	@docker run --rm -v $(PROJECT):/work $(DEVELOPMENT_IMAGE) \
 		sshpass -p $(SSH_PASSWORD) scp $(SSH_FLAGS) $(CONFIGURATION_FILE) $(SSH_ADDRESS):$(SCP_DIRECTORY)
-	@echo 'Transfer complete'
 
 connect:
 	@docker run --rm -it -v $(PROJECT):/work $(DEVELOPMENT_IMAGE) \
-		sshpass -p $(SSH_PASSWORD) ssh $(SSH_FLAGS) $(SSH_ADDRESS)
+		sshpass -p $(SSH_PASSWORD) ssh -tt $(SSH_FLAGS) $(SSH_ADDRESS) \
+		"cd /home/dso && exec /bin/sh -i"
