@@ -1,9 +1,9 @@
 #include "framebuffer.h"
 #include "font.h"
+#include "log.h"
 
 #include <fcntl.h>
 #include <limits.h>
-#include <stdio.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -32,13 +32,13 @@ void framebuffer_create(framebuffer_t *const framebuffer, const char *device)
 
     if (framebuffer->fd < 0)
     {
-        perror("open");
+        log_error("Failed to open framebuffer device");
         return;
     }
 
     if (ioctl(framebuffer->fd, FBIOGET_VSCREENINFO, &framebuffer->vinfo) < 0)
     {
-        perror("FBIOGET_VSCREENINFO");
+        log_error("Failed to get FBIOGET_VSCREENINFO");
         close(framebuffer->fd);
         framebuffer->fd = -1;
         return;
@@ -46,7 +46,7 @@ void framebuffer_create(framebuffer_t *const framebuffer, const char *device)
 
     if (ioctl(framebuffer->fd, FBIOGET_FSCREENINFO, &framebuffer->finfo) < 0)
     {
-        perror("FBIOGET_FSCREENINFO");
+        log_error("Failed to get FBIOGET_VSCREENINFO");
         close(framebuffer->fd);
         framebuffer->fd = -1;
         return;
@@ -71,7 +71,7 @@ void framebuffer_create(framebuffer_t *const framebuffer, const char *device)
 
     if (framebuffer->memory == MAP_FAILED)
     {
-        perror("mmap");
+        log_error("Failed to create virtual address mapping");
         close(framebuffer->fd);
         framebuffer->fd = -1;
         framebuffer->memory = NULL;

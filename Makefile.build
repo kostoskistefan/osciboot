@@ -14,6 +14,8 @@ BINARY_DIRECTORY = bin
 OBJECT_DIRECTORY = obj
 
 SOURCE_FILES = \
+	source/ui.c \
+	source/log.c \
 	source/main.c \
 	source/menu.c \
 	source/font.c \

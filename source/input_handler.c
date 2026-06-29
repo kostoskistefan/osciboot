@@ -1,7 +1,8 @@
 #include "input_handler.h"
+#include "log.h"
+#include "ui.h"
 #include <fcntl.h>
 #include <linux/input.h>
-#include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -11,13 +12,15 @@ void input_handler_initialize(input_handler_t *const input_handler, const char *
 
     if (input_handler->file_descriptor < 0)
     {
-        perror("open");
+        log_error("Failed to open input device");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Failed to open input device");
         return;
     }
 
     if (ioctl(input_handler->file_descriptor, EVIOCGRAB, 1) < 0)
     {
-        perror("EVIOCGRAB");
+        log_error("Failed to get EVIOCGRAB");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Failed to get EVIOCGRAB");
     }
 }
 

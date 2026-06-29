@@ -1,5 +1,7 @@
 #include "color.h"
 #include "font.h"
+#include "ui.h"
+#include "log.h"
 #include "configuration.h"
 #include "framebuffer.h"
 #include "input_handler.h"
@@ -7,7 +9,6 @@
 #include "keys.h"
 
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
@@ -42,13 +43,6 @@ int main(int arguments_count, char *arguments[])
         return EXIT_FAILURE;
     }
 
-    configuration_t configuration;
-
-    if (configuration_load(&configuration, arguments[1]) != CONFIGURATION_RESULT_OK)
-    {
-        return EXIT_FAILURE;
-    }
-
 #ifdef OSCIBOOT_DEBUG_TTY
     int tty_file_descriptor = initialize_debug_tty();
 
@@ -61,6 +55,15 @@ int main(int arguments_count, char *arguments[])
     framebuffer_t framebuffer;
     framebuffer_create(&framebuffer, DEVICE_FRAMEBUFFER);
     render_background(&framebuffer);
+
+    ui_initialize(&framebuffer);
+
+    configuration_t configuration;
+
+    if (configuration_load(&configuration, arguments[1]) != CONFIGURATION_RESULT_OK)
+    {
+        return EXIT_FAILURE;
+    }
 
     menu_t menu;
     menu_initialize(&menu, &framebuffer, &configuration);
@@ -85,7 +88,7 @@ static bool validate_arguments(int arguments_count)
 {
     if (arguments_count != 2)
     {
-        printf("osciboot: invalid arguments (usage: osciboot <config_file>)\n");
+        log_error("Invalid arguments (usage osciboot <configuration_file>)");
         return false;
     }
 
@@ -95,7 +98,14 @@ static bool validate_arguments(int arguments_count)
 static void render_background(framebuffer_t *framebuffer)
 {
     framebuffer_fill(framebuffer, COLOR_BLACK);
-    framebuffer_render_text(framebuffer, &font8x16, 8, 456, VERSION_STRING, COLOR_LIGHT_GRAY);
+    framebuffer_render_text(
+        framebuffer,
+        &font8x16,
+        8,
+        framebuffer->visible_height - 8 - font8x16.glyph_height,
+        VERSION_STRING,
+        COLOR_LIGHT_GRAY
+    );
 }
 
 static void run(framebuffer_t *framebuffer, menu_t *menu, input_handler_t *input_handler)
@@ -131,6 +141,7 @@ static void run(framebuffer_t *framebuffer, menu_t *menu, input_handler_t *input
         }
 
         menu_render(menu, false);
+        ui_render();
 
         nanosleep(&update_period, NULL);
     }
@@ -143,13 +154,13 @@ static int initialize_debug_tty(void)
 
     if (tty_file_descriptor < 0)
     {
-        perror("open tty");
+        log_error("Failed to open tty device");
         return -1;
     }
 
     if (ioctl(tty_file_descriptor, KDSETMODE, KD_GRAPHICS) < 0)
     {
-        perror("KDSETMODE");
+        log_error("Failed to set KDSETMODE");
     }
 
     return tty_file_descriptor;

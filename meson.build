@@ -10,6 +10,8 @@ project(
 
 executable('osciboot',
   sources : [
+    'source/ui.c',
+    'source/log.c',
     'source/main.c',
     'source/menu.c',
     'source/font.c',

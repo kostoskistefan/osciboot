@@ -1,20 +1,17 @@
 #include "configuration.h"
+#include "ui.h"
+#include "log.h"
 
-#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct configuration_parse_context_t
 {
     int current_line_number;
     const char *filename;
 } configuration_parse_context_t;
-
-static void configuration_print_error(const configuration_parse_context_t *context, const char *message)
-{
-    printf("osciboot::configuration error: %s:%d: %s\n", context->filename, context->current_line_number, message);
-}
 
 static char *configuration_trim_whitespace(char *text)
 {
@@ -49,7 +46,8 @@ static configuration_result_t configuration_validate_section(
         return CONFIGURATION_RESULT_OK;
     }
 
-    configuration_print_error(context, "section missing required field 'exec'");
+    log_error("Configuration section missing required field 'exec'");
+    ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Configuration section missing required field 'exec'");
     return CONFIGURATION_RESULT_INVALID_SYNTAX;
 }
 
@@ -73,7 +71,8 @@ static configuration_result_t configuration_parse_section(
 
     if (configuration->entries_count >= CONFIGURATION_MAX_ENTRIES)
     {
-        configuration_print_error(context, "too many entries");
+        log_error("Configuration file contains too many entries");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Configuration file contains too many entries");
         return CONFIGURATION_RESULT_TOO_MANY_ENTRIES;
     }
 
@@ -98,7 +97,8 @@ static configuration_result_t configuration_parse_key_value(
 {
     if (configuration->entries_count == 0)
     {
-        configuration_print_error(context, "key-value pair without section");
+        log_error("Configuration file contains a key-value pair without a section defined");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Configuration file contains a key-value pair without a section defined");
         return CONFIGURATION_RESULT_NO_SECTION_DEFINED;
     }
 
@@ -106,7 +106,8 @@ static configuration_result_t configuration_parse_key_value(
 
     if (strcmp(key, "exec") != 0)
     {
-        configuration_print_error(context, "unknown key (only 'exec' allowed)");
+        log_error("Configuration file contains unknown key (only 'exec' is allowed)");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Configuration file contains unknown key (only 'exec' is allowed)");
         return CONFIGURATION_RESULT_INVALID_SYNTAX;
     }
 
@@ -142,7 +143,8 @@ static configuration_result_t configuration_parse_line(
 
         if (closing_bracket == NULL)
         {
-            configuration_print_error(context, "missing closing bracket ']'");
+            log_error("Configuration contains missing closing bracket ']'");
+            ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Configuration file contains missing closing bracket ']'");
             return CONFIGURATION_RESULT_INVALID_SYNTAX;
         }
 
@@ -157,7 +159,8 @@ static configuration_result_t configuration_parse_line(
 
     if (equals_sign == NULL)
     {
-        configuration_print_error(context, "missing '=' in key-value pair");
+        log_error("Configuration contains missing '=' in key-value pair");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Configuration file contains missing '=' in key-value pair");
         return CONFIGURATION_RESULT_INVALID_SYNTAX;
     }
 
@@ -180,7 +183,8 @@ configuration_result_t configuration_load(configuration_t *const configuration, 
 
     if (file == NULL)
     {
-        configuration_print_error(&context, "file not found");
+        log_error("Configuration file not found");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Configuration file not found");
         return CONFIGURATION_RESULT_FILE_NOT_FOUND;
     }
 
@@ -217,7 +221,8 @@ configuration_result_t configuration_load(configuration_t *const configuration, 
 
     if (configuration->entries_count == 0)
     {
-        configuration_print_error(&context, "no sections defined");
+        log_error("Configuration file does not contain any entries");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Configuration file does not contain any entries");
         return CONFIGURATION_RESULT_NO_SECTION_DEFINED;
     }
 

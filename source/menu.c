@@ -1,10 +1,11 @@
 #include "menu.h"
+#include "ui.h"
+#include "log.h"
 #include "font.h"
 #include "color.h"
 #include "framebuffer.h"
 #include "configuration.h"
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -79,14 +80,16 @@ void menu_execute(menu_t *menu)
 
     if (pid == -1)
     {
-        perror("fork");
+        log_error("Failed to fork process");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Failed to fork the selected entry");
         return;
     }
 
     if (pid == 0)
     {
         execv(path, (char *[]) { (char *) path, NULL });
-        perror("execv");
+        log_error("Failed to execute process");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Failed to execute the selected entry");
         exit(EXIT_FAILURE);
     }
 
