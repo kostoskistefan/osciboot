@@ -18,6 +18,9 @@ typedef struct framebuffer_t
     int width;
     int height;
 
+    int visible_width;
+    int visible_height;
+
     int stride;
 } framebuffer_t;
 

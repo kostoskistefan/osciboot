@@ -43,8 +43,8 @@ void menu_render(menu_t *const menu, const bool force)
 
     const uint16_t menu_height = menu->configuration->entries_count * MENU_ENTRY_HEIGHT;
 
-    int32_t x = ((int32_t) menu->framebuffer->width - MENU_ENTRY_WIDTH) / 2;
-    int32_t y = ((int32_t) menu->framebuffer->height - menu_height) / 2;
+    int32_t x = ((int32_t) menu->framebuffer->visible_width - MENU_ENTRY_WIDTH) / 2;
+    int32_t y = ((int32_t) menu->framebuffer->visible_height - menu_height) / 2;
 
     for (uint8_t i = 0; i < menu->configuration->entries_count; ++i)
     {

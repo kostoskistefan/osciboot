@@ -2,11 +2,24 @@
 #include "font.h"
 
 #include <fcntl.h>
+#include <limits.h>
+#include <stdio.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <string.h>
+
+#ifndef DISPLAY_WIDTH
+#define DISPLAY_WIDTH INT_MAX
+#endif
+
+#ifndef DISPLAY_HEIGHT
+#define DISPLAY_HEIGHT INT_MAX
+#endif
+
+static inline int min_int(const int a, const int b)
+{
+    return a < b ? a : b;
+}
 
 void framebuffer_create(framebuffer_t *const framebuffer, const char *device)
 {
@@ -19,7 +32,7 @@ void framebuffer_create(framebuffer_t *const framebuffer, const char *device)
 
     if (framebuffer->fd < 0)
     {
-        perror("open /dev/fb0");
+        perror("open");
         return;
     }
 
@@ -41,6 +54,10 @@ void framebuffer_create(framebuffer_t *const framebuffer, const char *device)
 
     framebuffer->width = framebuffer->vinfo.xres;
     framebuffer->height = framebuffer->vinfo.yres;
+
+    framebuffer->visible_width = min_int(framebuffer->width, DISPLAY_WIDTH);
+    framebuffer->visible_height = min_int(framebuffer->height, DISPLAY_HEIGHT);
+
     framebuffer->stride = framebuffer->finfo.line_length / sizeof(uint16_t);
 
     framebuffer->memory = mmap(
@@ -96,7 +113,7 @@ void framebuffer_fill(framebuffer_t *const framebuffer, const uint16_t color)
 {
     const int total = framebuffer->width * framebuffer->height;
 
-    for (int i = 0; i < total; i++)
+    for (int i = 0; i < total; ++i)
     {
         framebuffer->memory[i] = color;
     }
@@ -108,8 +125,7 @@ void framebuffer_fill_rectangle(
     const uint16_t y,
     const uint16_t width,
     const uint16_t height,
-    const uint16_t color
-)
+    const uint16_t color)
 {
     uint16_t x_end = x + width;
     uint16_t y_end = y + height;
@@ -124,11 +140,11 @@ void framebuffer_fill_rectangle(
         y_end = framebuffer->height;
     }
 
-    for (int j = y; j < y_end; j++)
+    for (uint16_t j = y; j < y_end; ++j)
     {
-        uint16_t *const row = framebuffer->memory + (j * framebuffer->stride);
+        uint16_t *const row = framebuffer->memory + j * framebuffer->stride;
 
-        for (int i = x; i < x_end; i++)
+        for (uint16_t i = x; i < x_end; ++i)
         {
             row[i] = color;
         }
@@ -141,16 +157,15 @@ static void framebuffer_render_character(
     const uint16_t x,
     const uint16_t y,
     const char character,
-    const uint16_t color
-)
+    const uint16_t color)
 {
-    const uint8_t *glyph = font->glyph_data + ((unsigned char) character * font->glyph_height);
+    const uint8_t *glyph = font->glyph_data + ((unsigned char)character * font->glyph_height);
 
-    for (uint8_t row = 0; row < font->glyph_height; row++)
+    for (uint8_t row = 0; row < font->glyph_height; ++row)
     {
         const uint8_t bits = glyph[row];
 
-        for (uint8_t col = 0; col < font->glyph_width; col++)
+        for (uint8_t col = 0; col < font->glyph_width; ++col)
         {
             if (bits & (0x80 >> col))
             {
@@ -166,12 +181,11 @@ void framebuffer_render_text(
     const uint16_t x,
     const uint16_t y,
     const char *text,
-    const uint16_t color
-)
+    const uint16_t color)
 {
     uint16_t cursor_x = x;
 
-    for (uint16_t i = 0; text[i] != '\0'; i++)
+    for (uint16_t i = 0; text[i] != '\0'; ++i)
     {
         framebuffer_render_character(framebuffer, font, cursor_x, y, text[i], color);
         cursor_x += font->glyph_width;
