@@ -21,6 +21,7 @@ executable('osciboot',
   c_args : [
     '-DOSCIBOOT_DEBUG_TTY',
     '-D_POSIX_C_SOURCE=200809L',
+	'-DVERSION_STRING=osciboot-v1.0.0 [x86_64]',
     '-DCONFIGURATION_VALIDATE_EXEC_FILE_EXISTS=0',
   ],
 )

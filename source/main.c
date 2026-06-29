@@ -95,7 +95,7 @@ static bool validate_arguments(int arguments_count)
 static void render_background(framebuffer_t *framebuffer)
 {
     framebuffer_fill(framebuffer, COLOR_BLACK);
-    framebuffer_render_text(framebuffer, &font8x16, 8, 456, "osciboot [v1.0.0]", COLOR_LIGHT_GRAY);
+    framebuffer_render_text(framebuffer, &font8x16, 8, 456, VERSION_STRING, COLOR_LIGHT_GRAY);
 }
 
 static void run(framebuffer_t *framebuffer, menu_t *menu, input_handler_t *input_handler)
