@@ -12,5 +12,8 @@ typedef struct
 void input_handler_initialize(input_handler_t *const input_handler, const char *device);
 void input_handler_destroy(input_handler_t *input_handler);
 int input_handler_read(input_handler_t *input_handler);
+int input_handler_grab(input_handler_t *input_handler);
+int input_handler_release(input_handler_t *input_handler);
+int input_handler_flush(input_handler_t *input_handler);
 
 #endif // INPUT_HANDLER_H

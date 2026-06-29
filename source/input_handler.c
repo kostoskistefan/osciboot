@@ -16,19 +16,19 @@ void input_handler_initialize(input_handler_t *const input_handler, const char *
         ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Failed to open input device");
         return;
     }
-    //
-    // if (ioctl(input_handler->file_descriptor, EVIOCGRAB, 1) < 0)
-    // {
-    //     log_error("Failed to get EVIOCGRAB");
-    //     ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Failed to get EVIOCGRAB");
-    // }
+
+    if (input_handler_grab(input_handler) < 0)
+    {
+        log_error("Failed to get EVIOCGRAB");
+        ui_push_message(UI_MESSAGE_SEVERITY_ERROR, "Failed to get EVIOCGRAB");
+    }
 }
 
 void input_handler_destroy(input_handler_t *const input_handler)
 {
     if (input_handler->file_descriptor >= 0)
     {
-        // ioctl(input_handler->file_descriptor, EVIOCGRAB, 0);
+        ioctl(input_handler->file_descriptor, EVIOCGRAB, 0);
         close(input_handler->file_descriptor);
     }
 }
@@ -51,6 +51,28 @@ int input_handler_read(input_handler_t *const input_handler)
         {
             return input_handler->event.code;
         }
+    }
+
+    return 0;
+}
+
+int input_handler_grab(input_handler_t *input_handler)
+{
+    return ioctl(input_handler->file_descriptor, EVIOCGRAB, 1);
+}
+
+int input_handler_release(input_handler_t *input_handler)
+{
+    return ioctl(input_handler->file_descriptor, EVIOCGRAB, 0);
+}
+
+int input_handler_flush(input_handler_t *input_handler)
+{
+    struct input_event event;
+
+    while (read(input_handler->file_descriptor, &event, sizeof(event)) == sizeof(event))
+    {
+        /* discard */
     }
 
     return 0;

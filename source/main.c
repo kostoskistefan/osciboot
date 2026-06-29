@@ -131,9 +131,12 @@ static void run(framebuffer_t *framebuffer, menu_t *menu, input_handler_t *input
                 break;
 
             case KEY_ENTER:
+                input_handler_release(input_handler);
                 menu_execute(menu);
                 render_background(framebuffer);
                 menu_render(menu, true);
+                input_handler_flush(input_handler);
+                input_handler_grab(input_handler);
                 break;
 
             default:
