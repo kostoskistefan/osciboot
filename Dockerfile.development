@@ -3,6 +3,8 @@ FROM ubuntu:14.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
+    openssh-client \
+    sshpass \
     build-essential \
     gcc-arm-linux-gnueabi \
     g++-arm-linux-gnueabi \
